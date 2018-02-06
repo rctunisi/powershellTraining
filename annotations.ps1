@@ -14,7 +14,7 @@ Function Kill-Process{
     )
     PROCESS{
         $p = Get-Process -Name $ProcessName
-        #funcao para suportar acao do WHATIF e CONFIRM
+        #condicional para suportar acao do WHATIF e CONFIRM
         if($PSCmdlet.ShouldProcess($ProcessName,"Terminate process")){
             $p.kill()
         }
@@ -40,7 +40,6 @@ Function Kill-Process{
 }
 
 #concatenacao com sub-expression
-
 $var = "World"
 $var2 = "Hello $($var)"
 Write-host $var2
