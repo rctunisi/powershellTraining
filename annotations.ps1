@@ -21,3 +21,20 @@ Function Kill-Process{
     }
 }
 
+## opcoes de parametros
+Function Kill-Process{
+    [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='Medium')]
+    Param(
+        [ValidateNotNullOrEmpty()] #nao permite nulo nem vazio
+        [ValidateScript({if( (Get-Process -name $_) -ne $null){ $true } else { throw "Processo nao esta em execução"}})] #Script para validar o parametro.. no caso verifica se o processo esta em execucao
+        [parameter(Mandatory=$true)] #obrigatoriedade
+        [String]$ProcessName
+    )
+    PROCESS{
+        $p = Get-Process -Name $ProcessName
+        #funcao para suportar acao do WHATIF e CONFIRM
+        if($PSCmdlet.ShouldProcess($ProcessName,"Terminate process")){
+            $p.kill()
+        }
+    }
+}
