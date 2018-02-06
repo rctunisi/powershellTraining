@@ -38,3 +38,9 @@ Function Kill-Process{
         }
     }
 }
+
+#concatenacao com sub-expression
+
+$var = "World"
+$var2 = "Hello $($var)"
+Write-host $var2
