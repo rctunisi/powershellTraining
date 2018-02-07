@@ -162,9 +162,3 @@ function Test-PortAdv {
         $output
     }
     }
-
-### Custom object
-
-$obj = New-Object PSCustomObject
-$obj | Add-Member -MemberType NoteProperty -Name "Propriedade" -value "Value"
-$obj | Add-Member -MemberType ScriptMethod -Name "Metodo" -value { (ls c:\windows) }
