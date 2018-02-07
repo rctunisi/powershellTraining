@@ -26,7 +26,14 @@ Function Kill-Process{
     [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact='Medium')]
     Param(
         [ValidateNotNullOrEmpty()] #nao permite nulo nem vazio
-        [ValidateScript({if( (Get-Process -name $_) -ne $null){ $true } else { throw "Processo nao esta em execução"}})] #Script para validar o parametro.. no caso verifica se o processo esta em execucao
+        #Script para validar o parametro.. no caso verifica se o processo esta em execucao
+        [ValidateScript({ 
+            if((Get-Process -name $_) -ne $null){ 
+                $true 
+            } else { 
+                throw "Processo nao esta em execução"
+            }
+        })] 
         [parameter(Mandatory=$true)] #obrigatoriedade
         [String]$ProcessName
     )
