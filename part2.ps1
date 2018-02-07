@@ -6,7 +6,7 @@
 #.DESCRIPTION
 #Long description
 #
-#.PARAMETER Hostname
+#.PARAMETER ComputerName
 #Parameter description
 #
 #.PARAMETER TcpPort
@@ -30,7 +30,7 @@ Param(
     [ValidateScript({
         if(Test-Connection $_ -count 1 -Quiet){$true} else {throw "Server is not responding"}
     })]
-    [string]$Hostname,
+    [string]$ComputerName,
     [int[]]$TcpPort,
     [int]$MsTimeOut = 100,
     [switch]$Progress
@@ -41,17 +41,17 @@ PROCESS {
     $output = @()
     $TcpPort | ForEach-Object { 
         if ($Progress) { 
-            Write-Progress -Activity "Connecting to $HostName" ` -Status "Progress: $([int]($count/$TcpPort.count * 100))%" ` -PercentComplete $($count/$TcpPort.count * 100) 
+            Write-Progress -Activity "Connecting to $ComputerName" ` -Status "Progress: $([int]($count/$TcpPort.count * 100))%" ` -PercentComplete $($count/$TcpPort.count * 100) 
             $count++ 
         }
         $tcpClient = New-Object System.Net.Sockets.TcpClient
-        $connection = $tcpClient.BeginConnect($HostName,$_,$null,$null)
+        $connection = $tcpClient.BeginConnect($ComputerName,$_,$null,$null)
         $asyncResult = $connection.AsyncWaitHandle.WaitOne($MsTimeOut,$false)
         
-        $item = "" | Select-Object HostName,Port,Result
-        $item.Hostname = $Hostname
+        $item = "" | Select-Object ComputerName,Port,isOpen
+        $item.ComputerName = $ComputerName
         $item.Port = $_
-        $item.Result = $asyncResult
+        $item.isOpen = $asyncResult
         
         $output += $item
     }
@@ -63,6 +63,7 @@ PROCESS {
 ##############################
 #.SYNOPSIS
 # Test-Port com parametro dinamico
+# adicionado parametersetname para ocultar parametros em diferentes modos de execucao
 #
 #.DESCRIPTION
 #Long description
@@ -79,10 +80,14 @@ function Test-PortAdv {
         [ValidateScript({
             if(Test-Connection $_ -count 1 -Quiet){$true} else {throw "Server is not responding"}
         })]
-        [string]$Hostname,
+        [string]$ComputerName,
+        [Parameter(ParameterSetName=”NoRange”)]
         [int[]]$TcpPort,
+        [Parameter(ParameterSetName=”NoRange”)]
+        [Parameter(ParameterSetName=”Range”)]
         [int]$MsTimeOut = 100,
         [switch]$Progress,
+        [Parameter(ParameterSetName=”Range”)]
         [switch]$Range
         
     )
@@ -90,6 +95,7 @@ function Test-PortAdv {
         DynamicParam{
             if ($Range) { 
                 $attributes = new-object System.Management.Automation.ParameterAttribute 
+                $attributes.ParameterSetName = "Range"
                 $attributes.Mandatory = $true 
                 $attributes.HelpMessage = "StartPort and EndPort parameters appear if -Range switch parameter is specified" 
                 $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute] 
@@ -109,34 +115,34 @@ function Test-PortAdv {
         if($Range){
             for($i=$StartPort.value;$i -lt $EndPort.value;$i++){
                 if ($Progress) { 
-                    Write-Progress -Activity "Connecting to $HostName" ` -Status "Progress: $([int]($count/($endPort.value - $startPort.value) * 100))%" ` -PercentComplete $($count/($endport.value - $startport.value) * 100) 
+                    Write-Progress -Activity "Connecting to $ComputerName" ` -Status "Progress: $([int]($count/($endPort.value - $startPort.value) * 100))%" ` -PercentComplete $($count/($endport.value - $startport.value) * 100) 
                     $count++ 
                 }
                 $tcpClient = New-Object System.Net.Sockets.TcpClient
-                $connection = $tcpClient.BeginConnect($HostName,$i,$null,$null)
+                $connection = $tcpClient.BeginConnect($ComputerName,$i,$null,$null)
                 $asyncResult = $connection.AsyncWaitHandle.WaitOne($MsTimeOut,$false)
                 
-                $item = "" | Select-Object HostName,Port,Result
-                $item.Hostname = $Hostname
+                $item = "" | Select-Object ComputerName,Port,isOpen
+                $item.ComputerName = $ComputerName
                 $item.Port = $i
-                $item.Result = $asyncResult
+                $item.isOpen = $asyncResult
                 $output += $item
             }
 
         } else {
             $TcpPort | ForEach-Object { 
                 if ($Progress) { 
-                    Write-Progress -Activity "Connecting to $HostName" ` -Status "Progress: $([int]($count/$TcpPort.count * 100))%" ` -PercentComplete $($count/$TcpPort.count * 100) 
+                    Write-Progress -Activity "Connecting to $ComputerName" ` -Status "Progress: $([int]($count/$TcpPort.count * 100))%" ` -PercentComplete $($count/$TcpPort.count * 100) 
                     $count++ 
                 }
                 $tcpClient = New-Object System.Net.Sockets.TcpClient
-                $connection = $tcpClient.BeginConnect($HostName,$_,$null,$null)
+                $connection = $tcpClient.BeginConnect($ComputerName,$_,$null,$null)
                 $asyncResult = $connection.AsyncWaitHandle.WaitOne($MsTimeOut,$false)
                 
-                $item = "" | Select-Object HostName,Port,Result
-                $item.Hostname = $Hostname
+                $item = "" | Select-Object ComputerName,Port,isOpen
+                $item.ComputerName = $ComputerName
                 $item.Port = $_
-                $item.Result = $asyncResult
+                $item.isOpen = $asyncResult
                 
                 $output += $item
             }
