@@ -80,15 +80,26 @@ function Test-PortAdv {
         [ValidateScript({
             if(Test-Connection $_ -count 1 -Quiet){$true} else {throw "Server is not responding"}
         })]
+        [ValidateNotNull()]
+        [ValidateLength(2,50)]
+        [Parameter(Mandatory,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+        [Alias("Name")]
+        [Alias("DNSHostName")]
         [string]$ComputerName,
-        [Parameter(ParameterSetName=”NoRange”)]
+        
+        [Parameter(Mandatory,ParameterSetName=”NoRange”)]
+        [ValidateRange(1,65535)]
         [int[]]$TcpPort,
+        
         [Parameter(ParameterSetName=”NoRange”)]
         [Parameter(ParameterSetName=”Range”)]
+        [ValidateRange(100,10000)]
         [int]$MsTimeOut = 100,
-        [switch]$Progress,
+        
         [Parameter(ParameterSetName=”Range”)]
-        [switch]$Range
+        [switch]$Range,
+
+        [switch]$Progress
         
     )
     
@@ -152,3 +163,8 @@ function Test-PortAdv {
     }
     }
 
+### Custom object
+
+$obj = New-Object PSCustomObject
+$obj | Add-Member -MemberType NoteProperty -Name "Propriedade" -value "Value"
+$obj | Add-Member -MemberType ScriptMethod -Name "Metodo" -value { (ls c:\windows) }
