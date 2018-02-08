@@ -162,3 +162,8 @@ function Test-PortAdv {
         $output
     }
     }
+
+    switch(1,2,3,4,5){
+        5 { break}
+        default { Write-host $_}
+    }
